@@ -106,6 +106,19 @@ IMPLEMENTED_OPERATORS = [
     'test_min'
     ]
 
+STANDARD_MODELS = [
+    'test_bvlc_alexnet',
+    'test_densenet121',
+    'test_squeezenet',
+    'test_vgg16',
+    'test_vgg19'
+    ]
+
+BASIC_MODEL_TESTS = [
+    #'test_AvgPool2D*',
+    #'test_MaxPool2D*',
+    ]
+
 for op_test in IMPLEMENTED_OPERATORS:
     BACKEND_TEST.include(op_test)
 

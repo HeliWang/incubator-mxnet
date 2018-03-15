@@ -18,8 +18,8 @@
 # coding: utf-8
 """ Module for translating ONNX operators into Mxnet operatoes"""
 # pylint: disable=unused-argument,protected-access
-from . import translation_utils
-from .... import symbol
+import translation_utils
+import mxnet.symbol as symbol
 
 # Method definitions for the callable objects mapped in the import_helper module
 
@@ -261,20 +261,27 @@ def linalg_gemm(attrs, inputs, cls):
     new_attrs = translation_utils._fix_attribute_names(attrs, {'transA': 'transpose_a',
                                                                'transB': 'transpose_b'})
     new_attrs = translation_utils._remove_attributes(new_attrs, ['broadcast'])
-    return translation_utils._fix_gemm('FullyConnected', inputs, new_attrs, cls)
+    return 'linalg_gemm', new_attrs, inputs
+    #return translation_utils._fix_gemm('FullyConnected', inputs, new_attrs, cls)
 
-def local_response_norm(op_name, attrs, inputs):
+def local_response_norm(attrs, inputs, cls):
     """Local Response Normalization."""
     new_attrs = translation_utils._fix_attribute_names(attrs,
                                                        {'bias': 'knorm',
                                                         'size' : 'nsize'})
     return 'LRN', new_attrs, inputs
 
-def dropout(op_name, attrs, inputs):
+def dropout(attrs, inputs, cls):
     """Dropout Regularization."""
+    mode = 'training'
+    if attrs['is_test'] != 0:
+        mode = 'always'
+    #dropout_op = symbol.Dropout(data=inputs[0], p=attrs['ratio'], mode=mode)
+    #return dropout_op, new_attrs, inputs
     new_attrs = translation_utils._fix_attribute_names(attrs,
                                                        {'ratio': 'p'})
     new_attrs = translation_utils._remove_attributes(new_attrs, ['is_test'])
+    new_attrs = translation_utils._add_extra_attributes(new_attrs, {'mode': mode})
     return 'Dropout', new_attrs, inputs
 
 # Changing shape and type.

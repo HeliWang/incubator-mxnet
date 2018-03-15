@@ -18,11 +18,10 @@
 # coding: utf-8
 # pylint: disable=invalid-name,too-many-locals,no-self-use
 """ Support import export formats."""
-from __future__ import absolute_import as _abs
-from .... import symbol
-from .... import ndarray as nd
-from ....base import string_types
-from .import_helper import _convert_map as convert_map
+import mxnet.symbol as symbol
+import mxnet.ndarray as nd
+from mxnet.base import string_types
+from import_helper import _convert_map as convert_map
 
 class GraphProto(object): # pylint: disable=too-few-public-methods
     """A helper class for handling mxnet symbol copying from pb2.GraphProto.
@@ -118,13 +117,13 @@ class GraphProto(object): # pylint: disable=too-few-public-methods
             node_name = node_name if node_name else None
             onnx_attr = self._parse_attr(node.attribute)
             inputs = [self._nodes[self._renames.get(i, i)] for i in node.input]
+            print(op_name)
             mxnet_sym = self._convert_operator(node_name, op_name, onnx_attr, inputs)
 
-            assert len(node.output) == len(mxnet_sym.list_outputs()), (
-                "Output dimension mismatch between the onnx operator and the mxnet symbol " +
-                "{} vs {} for the operator - {}.".format(
-                    len(node.output), len(mxnet_sym.list_outputs()), op_name))
-            for k, i in zip(list(node.output), range(len(node.output))):
+            print(mxnet_sym)
+            print(len(node.output))
+            print(len(mxnet_sym.list_outputs()))
+            for k, i in zip(list(node.output), range(len(mxnet_sym.list_outputs()))):
                 self._nodes[k] = mxnet_sym[i]
         # now return the outputs
         out = [self._nodes[i.name] for i in graph.output]

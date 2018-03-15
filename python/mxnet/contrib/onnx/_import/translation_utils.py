@@ -19,7 +19,7 @@
 """Utilities used for translating operators from Onnx to Mxnet."""
 # pylint: disable=protected-access
 from __future__ import absolute_import as _abs
-from .... import symbol
+import mxnet.symbol as symbol
 
 
 def _fix_attribute_names(attrs, change_map):

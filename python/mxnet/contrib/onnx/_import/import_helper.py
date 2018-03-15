@@ -18,20 +18,20 @@
 # coding: utf-8
 # pylint: disable=invalid-name
 """Operator attributes conversion"""
-from .op_translations import identity, random_uniform, random_normal
-from .op_translations import add, subtract, multiply, divide, absolute, negative, add_n
-from .op_translations import tanh
-from .op_translations import ceil, floor
-from .op_translations import concat
-from .op_translations import leaky_relu, _elu, _prelu, softmax, fully_connected
-from .op_translations import global_avgpooling, global_maxpooling, linalg_gemm
-from .op_translations import sigmoid, pad, relu, matrix_multiplication, batch_norm
-from .op_translations import dropout, local_response_norm, conv, deconv
-from .op_translations import reshape, cast, split, _slice, transpose, squeeze
-from .op_translations import reciprocal, squareroot, power, exponent, _log
-from .op_translations import reduce_max, reduce_mean, reduce_min, reduce_sum
-from .op_translations import reduce_prod, avg_pooling, max_pooling
-from .op_translations import argmax, argmin, maximum, minimum
+from op_translations import identity, random_uniform, random_normal
+from op_translations import add, subtract, multiply, divide, absolute, negative, add_n
+from op_translations import tanh
+from op_translations import ceil, floor
+from op_translations import concat
+from op_translations import leaky_relu, _elu, _prelu, softmax, fully_connected
+from op_translations import global_avgpooling, global_maxpooling, linalg_gemm
+from op_translations import sigmoid, pad, relu, matrix_multiplication, batch_norm
+from op_translations import dropout, local_response_norm, conv, deconv
+from op_translations import reshape, cast, split, _slice, transpose, squeeze
+from op_translations import reciprocal, squareroot, power, exponent, _log
+from op_translations import reduce_max, reduce_mean, reduce_min, reduce_sum
+from op_translations import reduce_prod, avg_pooling, max_pooling
+from op_translations import argmax, argmin, maximum, minimum
 
 # convert_map defines maps of ONNX operator names to converter functor(callable)
 # defined in the op_translations module.
