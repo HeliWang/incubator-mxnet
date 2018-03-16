@@ -62,7 +62,36 @@ def import_model(model_file):
 def getRandom(shape):
     return np.random.ranf(shape).astype("float32")
 
-sym, params = import_model("/Users/aanirud/Code/scripts/onnxModels/densenet121/model.onnx")
+
+def verify_onnx_forward_impl(sym, params, input_data, output_data):
+    """Verifies result after inference"""
+    print("Converting onnx format to mxnet's symbol and params...")
+    sym, params = sym,params
+
+    # create module
+    mod = mx.mod.Module(symbol=sym, data_names=['input_0'], context=mx.cpu(), label_names=None)
+    mod.bind(for_training=False, data_shapes=[('input_0', input_data.shape)], label_shapes=None)
+    mod.set_params(arg_params=params, aux_params=params, allow_missing=True, allow_extra=True)
+    # run inference
+    Batch = namedtuple('Batch', ['data'])
+
+    mod.forward(Batch([mx.nd.array(input_data)]), is_train=False)
+
+    # Run the model with an onnx backend and verify the results
+    npt.assert_equal(mod.get_outputs()[0].shape, output_data.shape)
+    npt.assert_almost_equal(output_data, mod.get_outputs()[0].asnumpy(), decimal=3)
+    print("Conversion Successful")
+
+
+sym, params = import_model("/Users/aanirud/Code/scripts/onnxModels/inception_v2/model.onnx")
+npz_path = '/Users/aanirud/Code/scripts/onnxModels/densenet121/test_data_0.npz'
+sample = np.load(npz_path, encoding='bytes')
+inputs = list(sample['inputs'])
+outputs = list(sample['outputs'])
+input_data = np.asarray(inputs[0], dtype=np.float32)#, (0,2,3,1))
+output_data = np.asarray(outputs[0], dtype=np.float32)
+verify_onnx_forward_impl(sym, params, input_data, output_data)
+
 '''
 node_def = helper.make_node("Gemm", ["A", "B", "C"], ["Y"], alpha=0.5, beta=0.5)
 A = getRandom([3,4])

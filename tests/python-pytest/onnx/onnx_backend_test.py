@@ -98,7 +98,8 @@ IMPLEMENTED_OPERATORS = [
     #'test_pow_bcast_axis0',
     'test_log_',
     'test_exp',
-
+    
+    'test_Conv',
     # Sorting and Searching
     'test_argmax',
     'test_argmin',
