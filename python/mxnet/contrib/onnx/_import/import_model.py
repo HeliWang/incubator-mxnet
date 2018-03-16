@@ -83,8 +83,8 @@ def verify_onnx_forward_impl(sym, params, input_data, output_data):
     print("Conversion Successful")
 
 
-sym, params = import_model("/Users/aanirud/Code/scripts/onnxModels/inception_v2/model.onnx")
-npz_path = '/Users/aanirud/Code/scripts/onnxModels/densenet121/test_data_0.npz'
+sym, params = import_model("/Users/aanirud/Code/scripts/onnxModels/bvlc_alexnet/model.onnx")
+npz_path = '/Users/aanirud/Code/scripts/onnxModels/bvlc_alexnet/test_data_1.npz'
 sample = np.load(npz_path, encoding='bytes')
 inputs = list(sample['inputs'])
 outputs = list(sample['outputs'])

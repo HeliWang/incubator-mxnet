@@ -91,7 +91,7 @@ def _fix_pooling(pool_type, inputs, new_attr):
     kernel = new_attr.get('kernel')
     padding = new_attr.get('pad')
     pad_width = (0, 0, 0, 0) + _pad_sequence_fix(padding, len(kernel))
-    new_pad_op = symbol.pad(inputs[0], mode='constant', pad_width=pad_width)
+    new_pad_op = symbol.pad(inputs[0], mode='edge', pad_width=pad_width)
     new_pooling_op = symbol.Pooling(new_pad_op, pool_type=pool_type,
                                     stride=stride, kernel=kernel)
     return new_pooling_op
