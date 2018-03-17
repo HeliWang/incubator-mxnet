@@ -56,22 +56,22 @@ def import_model(model_file):
     except ImportError:
         raise ImportError("Onnx and protobuf need to be installed")
     model_proto = onnx.load(model_file)
-    sym, params = graph.from_onnx(model_proto.graph)
-    return sym, params
+    sym, arg_params, aux_params = graph.from_onnx(model_proto.graph)
+    return sym, arg_params, aux_params
 
 def getRandom(shape):
     return np.random.ranf(shape).astype("float32")
 
 
-def verify_onnx_forward_impl(sym, params, input_data, output_data):
+def verify_onnx_forward_impl(sym, arg_params, aux_params, input_data, output_data):
     """Verifies result after inference"""
     print("Converting onnx format to mxnet's symbol and params...")
-    sym, params = sym,params
+    sym, arg_params, aux_params = sym,arg_params, aux_params
 
     # create module
     mod = mx.mod.Module(symbol=sym, data_names=['input_0'], context=mx.cpu(), label_names=None)
     mod.bind(for_training=False, data_shapes=[('input_0', input_data.shape)], label_shapes=None)
-    mod.set_params(arg_params=params, aux_params=params, allow_missing=True, allow_extra=True)
+    mod.set_params(arg_params=arg_params, aux_params=aux_params, allow_missing=True, allow_extra=True)
     # run inference
     Batch = namedtuple('Batch', ['data'])
 
@@ -83,14 +83,14 @@ def verify_onnx_forward_impl(sym, params, input_data, output_data):
     print("Conversion Successful")
 
 
-sym, params = import_model("/Users/aanirud/Code/scripts/onnxModels/bvlc_alexnet/model.onnx")
-npz_path = '/Users/aanirud/Code/scripts/onnxModels/bvlc_alexnet/test_data_1.npz'
+sym, arg_params, aux_params = import_model("/Users/aanirud/Code/scripts/onnxModels/vgg19/model.onnx")
+npz_path = '/Users/aanirud/Code/scripts/onnxModels/vgg19/test_data_0.npz'
 sample = np.load(npz_path, encoding='bytes')
 inputs = list(sample['inputs'])
 outputs = list(sample['outputs'])
 input_data = np.asarray(inputs[0], dtype=np.float32)#, (0,2,3,1))
 output_data = np.asarray(outputs[0], dtype=np.float32)
-verify_onnx_forward_impl(sym, params, input_data, output_data)
+verify_onnx_forward_impl(sym, arg_params, aux_params, input_data, output_data)
 
 '''
 node_def = helper.make_node("Gemm", ["A", "B", "C"], ["Y"], alpha=0.5, beta=0.5)

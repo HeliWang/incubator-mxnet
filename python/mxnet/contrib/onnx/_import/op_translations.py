@@ -164,10 +164,13 @@ def matrix_multiplication(attrs, inputs, cls):
 
 def batch_norm(attrs, inputs, cls):
     """Batch normalization."""
-    new_attrs = translation_utils._fix_attribute_names(attrs, {'epsilon' : 'eps'})
-    new_attrs = translation_utils._remove_attributes(new_attrs,
-                                                     ['spatial', 'is_test', 'consumed_inputs'])
+    new_attrs = translation_utils._fix_attribute_names(attrs, {'epsilon' : 'eps',
+                                                               'is_test':'fix_gamma'})
+    new_attrs = translation_utils._remove_attributes(new_attrs, ['spatial', 'consumed_inputs'])
     new_attrs = translation_utils._add_extra_attributes(new_attrs, {'cudnn_off': 1})
+
+    # in test mode "fix_gamma" should be unset.
+    new_attrs['fix_gamma'] = 0 if new_attrs['fix_gamma'] == 1 else 1
     return 'BatchNorm', new_attrs, inputs
 
 
@@ -245,7 +248,7 @@ def global_maxpooling(attrs, inputs, cls):
     new_attrs = translation_utils._add_extra_attributes(attrs, {'global_pool': True,
                                                                 'kernel': (1, 1),
                                                                 'pool_type': 'max'})
-    return 'pooling', new_attrs, inputs
+    return 'Pooling', new_attrs, inputs
 
 
 def global_avgpooling(attrs, inputs, cls):
@@ -253,15 +256,33 @@ def global_avgpooling(attrs, inputs, cls):
     new_attrs = translation_utils._add_extra_attributes(attrs, {'global_pool': True,
                                                                 'kernel': (1, 1),
                                                                 'pool_type': 'avg'})
-    return 'pooling', new_attrs, inputs
+    return 'Pooling', new_attrs, inputs
 
 
 def linalg_gemm(attrs, inputs, cls):
     """Performs general matrix multiplication and accumulation"""
+    trans_a = 0
+    trans_b = 0
+    alpha = 1
+    beta = 1
+    if 'transA' in attrs:
+        trans_a = attrs['transA']
+    if 'transB' in attrs:
+        trans_b = attrs['transB']
+    if 'alpha' in attrs:
+        alpha = attrs['alpha']
+    if 'beta' in attrs:
+        beta = attrs['beta']
+    matmul_op = symbol.linalg_gemm2(A=inputs[0], B=inputs[1],
+                                    transpose_a=trans_a, transpose_b=trans_b,
+                                    alpha=alpha)
+    gemm_op = symbol.broadcast_add(matmul_op, beta*inputs[2])
+    
     new_attrs = translation_utils._fix_attribute_names(attrs, {'transA': 'transpose_a',
                                                                'transB': 'transpose_b'})
     new_attrs = translation_utils._remove_attributes(new_attrs, ['broadcast'])
-    return 'linalg_gemm', new_attrs, inputs
+    
+    return gemm_op, new_attrs, inputs
     #return translation_utils._fix_gemm('FullyConnected', inputs, new_attrs, cls)
 
 def local_response_norm(attrs, inputs, cls):
